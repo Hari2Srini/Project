@@ -78,6 +78,52 @@ tp %>%
   scale_y_continuous(limits = c(0, NA), labels = scales::percent_format()) +
   labs(x = NULL, y = "% of Accidents that Involve Injury") + 
   theme_minimal() + theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 18, family = "Open Sans"))
+  
+  
+##Accident Fatal and Injuries 
+tpp<-tp%>%
+  mutate(Date = wday(Date, label = TRUE)) %>%
+  mutate(Head = fct_collapse(Head, Fatal = c("Fatal","fatal","Fatal.","Fatals"),Injury = c("Simple","simple","Grevious","Grives","RA"))) %>%
+  count(Head)
+ggplot(tpp, aes(x= Head, y=n )) + 
+  geom_bar(stat = "identity", width=0.2, alpha = 0.4, fill="red") +
+  theme_minimal() + labs(x = "Cases", y = "Number of Accidents") +
+  theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 18, family = "Open Sans"))
+
+##How does the cases rate change through the week?
+
+
+tp %>%
+  mutate(Date = wday(Date, label = TRUE)) %>%
+  mutate(Head = fct_collapse(Head, Fatal = c("Fatal","fatal","Fatal.","Fatals"),
+                             Injury = c("Simple","simple","Grevious","Grives","RA"))) %>%
+  
+  count(Date, Head) %>%
+  group_by(Head) %>%
+  mutate(percent = n / sum(n)) %>%
+  ungroup() %>%
+  ggplot(aes(percent, Date, fill = Head )) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  scale_x_continuous(labels = scales::percent_format()) +
+  labs(x = "% of Cases", y = NULL, fill = "Cases") + ggtitle("Case Rate") +
+  
+  scale_fill_brewer(palette="Paired") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 18, family = "Open Sans"))
+
+
+##Accident Rate through Week
+tp %>%
+  mutate(Date = wday(Date, label = TRUE)) %>%
+  mutate(Head = fct_collapse(Head,Fatal = c("Fatal","fatal","Fatal.","Fatals"))) %>% 
+  count(Date,Head) %>% filter(Head == "Fatal") %>% group_by(Head) %>%
+  mutate(percent = scales::percent(n / sum(n))) %>%
+  kable(
+    col.names = c("Day", "Cases", "Number of people", "percentage"),
+    align = "llrr"
+  )
+  
+
 
 
 
