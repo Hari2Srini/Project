@@ -187,7 +187,49 @@ ggplot(data = g,mapping = aes(x = ifelse(test = Gender == "M", yes = -n, no = n)
     axis.text.x=element_blank(),
     legend.position="bottom",
     legend.text=element_text(size=12)) +
+    
   theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 14, family = "Open Sans"))
+
+
+
+
+###Bar chart Age and head
+
+tt %>%
+  mutate(Date = floor_date(Date, unit = "month")) %>%
+  mutate(Head = fct_collapse(Head, Fatal = c("Fatal","fatal","Fatal.","Fatals"),
+                             Injury = c("Simple","simple","Grevious","Grives","RA")))
+
+
+ttr <- tt %>% 
+  mutate(
+    age_group = dplyr::case_when(
+      Age < 5                ~ "0-5",
+      Age >= 5   & Age <= 9  ~ "5-49",
+      Age >= 10  & Age <= 15 ~ "10-15",
+      Age >= 16  & Age <= 20 ~ "16-20",
+      Age >= 21  & Age <= 24 ~ "21-24",
+      Age >= 25  & Age <= 34 ~ "25-34",
+      Age >= 35  & Age <= 44 ~ "35-44",
+      Age >= 45  & Age <= 54 ~ "45-54",
+      Age >= 55  & Age <= 64 ~ "64-74",
+      Age > 74               ~ " > 74"
+    ),
+    # Convert to factor
+    age_group = factor(
+      age_group,
+      level = c("0-5","5-49","10-15","16-20","21-24","25-34","35-44","45-54","64-74"," > 74")
+    )
+  ) 
+ag <- ttr %>%  
+  filter(Head == "Fatal")  %>% 
+  count(age_group,Head)
+ag
+g = na.omit(ag, cols = c ("age_group"))
+ggplot(g, aes(x= age_group, y=n )) + 
+  geom_bar(stat = "identity", width=0.7, alpha = 0.4) +
+  theme_minimal() + labs(x = "Age", y = "Number of Fatalities") +
+  theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 10, family = "Open Sans"))
 
 
 
