@@ -3,7 +3,12 @@ library(tidyverse)
 library(ggplot2)
 library(RSocrata)
 library(readxl)
+library(dplyr)
 library(lubridate)
+library(kableExtra)
+library(extrafont)
+library(lemon)
+loadfonts(device = "win")
 
 
 ## Number of traffic Accidents per month
@@ -90,8 +95,10 @@ ggplot(tpp, aes(x= Head, y=n )) +
   theme_minimal() + labs(x = "Cases", y = "Number of Accidents") +
   theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 18, family = "Open Sans"))
 
-##How does the cases rate change through the week?
 
+
+
+##How does the cases rate change through the week?
 
 tp %>%
   mutate(Date = wday(Date, label = TRUE)) %>%
@@ -123,6 +130,66 @@ tp %>%
     align = "llrr"
   )
   
+##Male & Female age group
+
+t = acci %>% select(Head,Age,Date,Gender)
+view(t)
+
+tt <- t %>% 
+  filter(!is.na(Age),!is.na(Gender))
+
+tt %>%
+  mutate(Date = floor_date(Date, unit = "month")) %>%
+  mutate(Head = fct_collapse(Head, Fatal = c("Fatal","fatal","Fatal.","Fatals"),
+                             Injury = c("Simple","simple","Grevious","Grives","RA")))
+
+
+ttr <- tt %>% 
+  mutate(
+    age_group = dplyr::case_when(
+      Age <= 18            ~ "0-18",
+      Age >= 19 & Age <= 40 ~ "19-40",
+      Age > 40 & Age <= 62 ~ "40-62",
+      Age > 62             ~ "> 62"
+    ),
+    # Convert to factor
+    age_group = factor(
+      age_group,
+      level = c("0-18","19-40","40-62", "> 62")
+    )
+  ) 
+
+
+
+ag <- ttr %>%  
+  filter(Gender != "N")  %>% 
+  count(age_group,Gender)
+
+
+
+g = na.omit(ag, cols = c("Gender", "age_group"))
+
+ggplot(data = g,mapping = aes(x = ifelse(test = Gender == "M", yes = -n, no = n),
+                               y = age_group, fill = Gender,
+                               label=paste(round(n*100/sum(n), 0), "%", sep=""))) +
+  geom_col() +
+  geom_text(hjust=ifelse(test = g$Gender == "M",  yes = 1.1, no = -0.1), size= 3, colour="#505050") + 
+  labs(x = "Population") +
+  # Remove the axis labels and the fill label from the legend - these are unnecessary for a Population Pyramid
+  labs(
+    x = "",
+    y = "",
+    fill=""
+  ) + theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text.x=element_blank(),
+    legend.position="bottom",
+    legend.text=element_text(size=12)) +
+  theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 14, family = "Open Sans"))
+
+
 
 
 
