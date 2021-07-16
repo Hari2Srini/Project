@@ -13,7 +13,7 @@ loadfonts(device = "win")
 
 ## Number of traffic Accidents per month
 
-a <- excel_sheets("D:/thoppurproject/Road.xlsx") %>% map_df(~read_xlsx("D:/thoppurproject/Road.xlsx",.))
+a <- excel_sheets("D:/thoppurproject/acci.xlsx") %>% map_df(~read_xlsx("D:/thoppurproject/acci.xlsx",.))
 view(a)
 
 skimr::skim(a)
