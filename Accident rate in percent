@@ -1,0 +1,11 @@
+##Accident Rate through Week
+tp %>%
+  mutate(Date = wday(Date, label = TRUE)) %>%
+  mutate(Head = fct_collapse(Head,Fatal = c("Fatal","fatal","Fatal.","Fatals"))) %>% 
+  count(Date,Head) %>% filter(Head == "Fatal") %>% group_by(Head) %>%
+  mutate(percent = scales::percent(n / sum(n))) %>%
+  kable(
+    col.names = c("Day", "Cases", "Number of people", "percentage"),
+    align = "llrr"
+  )
+  
