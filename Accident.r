@@ -260,6 +260,71 @@ plot4[[1]]
 
 
 
+##Facet graph
+
+b <- acci
+view(b)
+str(b)
+
+f = b %>% na.omit(b,cols = c("Age"))
+
+tp = f %>% select(Head,Date,Age)
+view(tp)
+#skimr::skim(tp)
+
+## Number of Fatals
+case = tp %>%
+  mutate(Head = fct_collapse(Head, Fatal = c("Fatal","fatal","Fatal.","Fatals"),
+                             Injury = c("Simple","simple","Grevious","Grives","RA"))) 
+  
+c = case %>% 
+  mutate(Date = floor_date(Date, unit = "month")) %>%
+  mutate(Head = fct_collapse(Head,cases = c("Fatal","Injury")))
+apply(c, 2, function(x) any(is.na(x)))
+
+ttr <- c %>% 
+  mutate(
+    age_group = dplyr::case_when(
+      Age < 5                ~ "0-5",
+      Age >= 5   & Age <= 9  ~ "5-9",
+      Age >= 10  & Age <= 15 ~ "10-15",
+      Age >= 16  & Age <= 20 ~ "16-20",
+      Age >= 21  & Age <= 24 ~ "21-24",
+      Age >= 25  & Age <= 34 ~ "25-34",
+      Age >= 35  & Age <= 44 ~ "35-44",
+      Age >= 45  & Age <= 54 ~ "45-54",
+      Age >= 55  & Age <= 64 ~ "55-64",
+      Age > 64               ~ " > 64"
+    ),
+    # Convert to factor
+    age_group = factor(
+      age_group,
+      level = c("0-5","5-9","10-15","16-20","21-24","25-34","35-44","45-54","55-64"," > 64")
+    )
+  ) 
+
+
+view(ttr)
+ag <- ttr %>% count(age_group,Head,Date)
+ag
+sum(ag$n)
+
+ggplot(data = ag, aes(x = Date , y = n, group = age_group, colour = age_group)) +
+geom_line() +facet_wrap(~ age_group)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
