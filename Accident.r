@@ -132,6 +132,8 @@ tp %>%
   
 ##Male & Female age group
 
+###load acci excel sheet
+
 t = acci %>% select(Head,Age,Date,Gender)
 view(t)
 
@@ -205,20 +207,20 @@ ttr <- tt %>%
   mutate(
     age_group = dplyr::case_when(
       Age < 5                ~ "0-5",
-      Age >= 5   & Age <= 9  ~ "5-49",
+      Age >= 5   & Age <= 9  ~ "5-9",
       Age >= 10  & Age <= 15 ~ "10-15",
       Age >= 16  & Age <= 20 ~ "16-20",
       Age >= 21  & Age <= 24 ~ "21-24",
       Age >= 25  & Age <= 34 ~ "25-34",
       Age >= 35  & Age <= 44 ~ "35-44",
       Age >= 45  & Age <= 54 ~ "45-54",
-      Age >= 55  & Age <= 64 ~ "64-74",
+      Age >= 55  & Age <= 74 ~ "55-74",
       Age > 74               ~ " > 74"
     ),
     # Convert to factor
     age_group = factor(
       age_group,
-      level = c("0-5","5-49","10-15","16-20","21-24","25-34","35-44","45-54","64-74"," > 74")
+      level = c("0-5","5-9","10-15","16-20","21-24","25-34","35-44","45-54","55-74"," > 74")
     )
   ) 
 ag <- ttr %>%  
@@ -230,7 +232,8 @@ ggplot(g, aes(x= age_group, y=n )) +
   geom_bar(stat = "identity", width=0.7, alpha = 0.4) +
   theme_minimal() + labs(x = "Age", y = "Number of Fatalities") +
   theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 10, family = "Open Sans"))
-  
+
+
 ## Accident & Gender
 library(DataExplorer)
 l = t %>%  na.omit(t,cols = c("Gender"))
@@ -253,22 +256,6 @@ library(ISLR)
 plot4 <- ExpNumViz(l,target="Head",col=c("darkgreen","springgreen3","springgreen1"))
 
 plot4[[1]]
-
-## Comparison of chi square between age group and cases 
-
-ac <- ttr
-
-ac$Head = factor(ac$Head)
-
-ac %>% 
-  na.omit(ac,age_group)
-
-ggbarstats(data = ac , x = Head , y = age_group, label = "both")
-
-
-
-
-
 
 
 
