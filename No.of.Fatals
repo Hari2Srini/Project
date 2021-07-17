@@ -1,0 +1,19 @@
+## Number of Fatals
+tp %>%
+  mutate(Date = floor_date(Date, unit = "month")) %>%
+  mutate(Head = fct_collapse(Head, Fatal = c("Fatal","fatal","Fatal.","Fatals"),
+                             
+                             Injury = c("Simple","simple","Grevious","Grives","RA"))) %>% 
+  count(Date,Head) %>% 
+  filter(
+    Date != last(Date),
+    Date != first(Date)
+  )  %>%
+  group_by(Date) %>% 
+  mutate(percent_injury = n / sum(n)) %>%
+  ungroup() %>%
+  filter(Head == "Fatal") %>%
+  ggplot(aes(Date, percent_injury)) + geom_line(size = 1.5, alpha = 0.7, color = "Red") +
+  scale_y_continuous(limits = c(0, NA), labels = scales::percent_format()) +
+  labs(x = NULL, y = "% of Accidents that Involve Death") + 
+  theme_minimal() + theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 18, family = "Open Sans"))
