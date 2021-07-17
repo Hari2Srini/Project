@@ -230,6 +230,42 @@ ggplot(g, aes(x= age_group, y=n )) +
   geom_bar(stat = "identity", width=0.7, alpha = 0.4) +
   theme_minimal() + labs(x = "Age", y = "Number of Fatalities") +
   theme(plot.title = element_text(hjust = 0.5),text = element_text( size = 10, family = "Open Sans"))
+  
+## Accident & Gender
+library(DataExplorer)
+l = t %>%  na.omit(t,cols = c("Gender"))
+
+plot_bar(l, ggtheme = theme_minimal(base_size = 20))
+
+
+
+## comparing categorical using chi square
+l$Head=factor(l$Head)
+l$Gender=factor(l$Gender)
+str(l)
+ggbarstats(data = l, x = Head, y = Gender, label = "both")
+library(SmartEDA)
+library(ISLR)
+
+
+## Box Plot
+
+plot4 <- ExpNumViz(l,target="Head",col=c("darkgreen","springgreen3","springgreen1"))
+
+plot4[[1]]
+
+## Comparison of chi square between age group and cases 
+
+ac <- ttr
+
+ac$Head = factor(ac$Head)
+
+ac %>% 
+  na.omit(ac,age_group)
+
+ggbarstats(data = ac , x = Head , y = age_group, label = "both")
+
+
 
 
 
